@@ -9,7 +9,7 @@ from telegram.ext import Updater, Handler, MessageHandler
 from telegram.ext import Filters
 from telegram.ext import CommandHandler
 
-#API keys
+# API keys
 api_file = open('api_key.txt', 'r')
 gmaps_token = api_file.readline()
 tg_token = api_file.readline()
@@ -26,7 +26,7 @@ location_keyboard = telegram.KeyboardButton(text="Знайти паркінг п
 custom_keyboard = [[ location_keyboard ]]
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
 
-#User data
+# User data
 current_location = [None] * 2
 
 
