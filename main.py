@@ -6,8 +6,9 @@ import logging
 
 import requests
 import telegram
-import smtplib
-import objectpath
+import openpyxl
+from pathlib import Path
+from math import radians, cos, sin, asin, sqrt
 from telegram.ext import Updater, Handler, MessageHandler
 from telegram.ext import Filters
 from telegram.ext import CommandHandler
@@ -18,20 +19,47 @@ ors_token = api_file.readline()
 tg_token = api_file.readline()
 api_file.close()
 
+# logger / telegram bot config
 updater = Updater(token=tg_token, use_context=True)
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 bot = telegram.Bot(token=tg_token)
 dispatcher = updater.dispatcher
 
+# location keyboard
 location_keyboard = telegram.KeyboardButton(text="Знайти паркінг поруч", request_location=True)
 custom_keyboard = [[ location_keyboard ]]
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
 
+# excel sheet
+xlsx_file = Path('parking.xlsx')
+workbook_obj = openpyxl.load_workbook(xlsx_file)
+parking_sheet = workbook_obj.active
+
+# parking dict
+parking_data = {}
+
+# User data
 current_location = [None] * 2
 longitude = 0
 latitude = 0
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    r = 6371 # Radius of earth in kilometers
+    return c * r
+
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
@@ -75,8 +103,12 @@ def respond_nearest_parking(update, context):
         update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
 
 
+def load_parking_data():
+    to_be_continued = None
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    print(parking_sheet["K1"].value)
     start_handler = CommandHandler('start', start)
     location_handler = CommandHandler('send_location', get_location)
     dispatcher.add_handler(start_handler)
