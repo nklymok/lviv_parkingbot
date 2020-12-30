@@ -61,6 +61,8 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r
 
 
+
+
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
     bot.send_message(chat_id=update.effective_chat.id,
@@ -106,9 +108,9 @@ def respond_nearest_parking(update, context):
 def load_parking_data():
     to_be_continued = None
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print(parking_sheet["K1"].value)
     start_handler = CommandHandler('start', start)
     location_handler = CommandHandler('send_location', get_location)
     dispatcher.add_handler(start_handler)
