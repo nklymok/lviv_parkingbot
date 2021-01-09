@@ -5,6 +5,8 @@
 import logging
 from math import radians, cos, sin, asin, sqrt
 from pathlib import Path
+import time
+import os
 
 import openpyxl
 import requests
@@ -14,6 +16,8 @@ from telegram.ext import Filters
 from telegram.ext import Updater, MessageHandler
 
 from parkingspot import ParkingSpot
+
+PORT = int(os.environ.get('PORT', 5000))
 
 # API keys
 api_file = open('api_key.txt', 'r')
@@ -31,7 +35,7 @@ dispatcher = updater.dispatcher
 # location keyboard
 location_keyboard = telegram.KeyboardButton(text="Знайти паркінг поруч", request_location=True)
 custom_keyboard = [[location_keyboard]]
-reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+find_parking_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
 # excel sheet
 xlsx_file = Path('parking.xlsx')
@@ -46,6 +50,10 @@ current_location = [None] * 2
 longitude = 0
 latitude = 0
 
+# Timeout dictionary
+user_calltime = {}
+timeout = 15
+
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -57,9 +65,9 @@ def haversine(lon1, lat1, lon2, lat2):
     # haversine formula
     dlon = lon2 - lon1
     dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
-    r = 6371 # Radius of earth in kilometers
+    r = 6371  # Radius of earth in kilometers
     return c * r
 
 
@@ -67,14 +75,32 @@ def get_dist_dur_summary(json):
     return json["features"][0]["properties"]["summary"]
 
 
-def get_location(update, context):
+def on_timeout(call_time, current_time):
+    global timeout
+    if call_time is not None and float(current_time) - float(call_time) < float(timeout):
+        return True
+    return False
+
+
+def send_on_timeout_message(update, context, time_to_wait):
+    update.message.reply_text("Отримати найближчу парковку можна через " + str(int(time_to_wait)) + " секунд!")
+
+
+def process_location(update, context):
     global longitude
     global latitude
-    longitude = update.message.location.longitude
-    latitude = update.message.location.latitude
-    current_location[0] = longitude
-    current_location[1] = latitude
-    respond_nearest_parking(update, context)
+    user_chat_id = update.message.chat_id
+    current_time = time.time()
+    if on_timeout(user_calltime.get(user_chat_id), current_time):
+        send_on_timeout_message(update, context, current_time - user_calltime.get(user_chat_id))
+        return
+    else:
+        user_calltime[user_chat_id] = current_time
+        longitude = update.message.location.longitude
+        latitude = update.message.location.latitude
+        current_location[0] = longitude
+        current_location[1] = latitude
+        respond_nearest_parking(update, context)
 
 
 def find_distance(parking_spot):
@@ -84,61 +110,91 @@ def find_distance(parking_spot):
     return haversine(longitude, latitude, parking_spot.longitude, parking_spot.latitude)
 
 
-def get_nearest_parkingspot():
-    closest = parking_spots[0]
-    min_distance = find_distance(closest)
-    for parking in parking_spots:
-        if find_distance(parking) < min_distance:
-            closest = parking
-            min_distance = find_distance(parking)
-    return closest
+def sort_parkingspots():
+    global longitude
+    global latitude
+
+    parking_spots.sort(key=find_distance)
 
 
+def send_parking_spot(update, parking_spot, summary):
+    distance = round(summary["distance"] / 1000, 2)
+    duration = round(summary["duration"] / 60)
+    print(str(distance) + ' км ' + str(duration) + ' хв, haversine: ' + str(
+        haversine(longitude, latitude, parking_spot.longitude, parking_spot.latitude)))
+    update.message.reply_location(latitude=parking_spot.latitude, longitude=parking_spot.longitude)
+    update.message.reply_text(
+        text=
+        '🚗 Найближчий паркінг: ' + parking_spot.address + '\n\n'
+        '📏 Відстань: ' + str(distance).format() + ' км\n\n'
+        '⌛ Орієнтовне прибуття: через ' + str(duration) + ' хв\n\n'
+        '🤏 К-ть паркувальних місць: ' + str(parking_spot.parking_places) + '\n\n'
+        '🦽 К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
+    )
+
+
+# TODO checked parking lots up to 102
 def respond_nearest_parking(update, context):
     global longitude
     global latitude
 
-    parking_spot = get_nearest_parkingspot()
+    sort_parkingspots()
+    parking_spot = parking_spots[0]
     request = 'https://api.openrouteservice.org/v2/directions/driving-car?api_key=' + ors_token + \
-            '&start=' + str(longitude) + ',' + str(latitude) + \
+              '&start=' + str(longitude) + ',' + str(latitude) + \
               '&end=' + str(parking_spot.longitude) + ',' + str(parking_spot.latitude)
     response = requests.get(request)
     if response.status_code == 200:
-        summary = get_dist_dur_summary(response.json())
-        distance = round(summary["distance"] / 1000, 2)
-        duration = round(summary["duration"] / 60)
-        print(str(distance) + ' км ' + str(duration) + ' хв')
-        update.message.reply_location(latitude=parking_spot.latitude, longitude=parking_spot.longitude)
-        update.message.reply_text(
-            text='🚗 Найближчий паркінг: ' + parking_spot.address + '\n\n'
-                '📏 Відстань: ' + str(distance).format() + ' км\n\n'
-                '⌛ Орієнтовне прибуття: через ' + str(duration) + ' хв')
+        send_parking_spot(update, parking_spot, get_dist_dur_summary(response.json()))
     else:
         update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
-        print(response.json())
+        print("error: \n" + response.json())
+
+
+def respond_three_parkings(update, context):
+    global longitude
+    global latitude
+
+    sort_parkingspots()
+    for i, parking_spot in enumerate(parking_spots):
+        if i == 3:
+            break
+        request = 'https://api.openrouteservice.org/v2/directions/driving-car?api_key=' + ors_token + \
+                  '&start=' + str(longitude) + ',' + str(latitude) + \
+                  '&end=' + str(parking_spot.longitude) + ',' + str(parking_spot.latitude)
+        response = requests.get(request)
+        if response.status_code == 200:
+            send_parking_spot(update, parking_spot, get_dist_dur_summary(response.json()))
+        else:
+            update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
+            print(response.json())
 
 
 def load_parking_data():
     for i, row in enumerate(parking_sheet.iter_rows(values_only=True)):
-        # row[8] = longitude,latitude | row[10] == address
+        # row[6] = parking places | row[7] = parking places for people with disabilities
+        # row[8] = longitude,latitude | row[10] = address
         if i == 0 or row[1] != 'загального користування':
             continue
         address = str(row[10])
         lat_lon = str(row[8]).split(',', 2)
-        parking_spots.append(ParkingSpot(address, float(lat_lon[0]), float(lat_lon[1])))
+        parking_places = int(row[6])
+        parking_places_dis = int(row[7])
+        parking_spots.append(ParkingSpot(address, float(lat_lon[0]), float(lat_lon[1]),
+                                         parking_places, parking_places_dis))
 
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
     bot.send_message(chat_id=update.effective_chat.id,
-                     reply_markup=reply_markup, text="Будь ласка, відправте ваші геодані.")
+                     reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     load_parking_data()
     start_handler = CommandHandler('start', start)
-    location_handler = CommandHandler('send_location', get_location)
+    location_handler = CommandHandler('send_location', process_location)
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=get_location))
+    dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
     updater.start_polling()
