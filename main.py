@@ -167,7 +167,7 @@ def load_parking_data():
 
 
 def start(update, context):
-    print('new user: ' + update.message.from_user.id + ' | username: ' + update.message.from_user.username)
+    print('new user: ' + str(update.message.from_user.id) + ' | username: ' + str(update.message.from_user.username))
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
     bot.send_message(chat_id=update.effective_chat.id,
                      reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
