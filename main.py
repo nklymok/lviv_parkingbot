@@ -197,4 +197,8 @@ if __name__ == '__main__':
     location_handler = CommandHandler('send_location', process_location)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
-    updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=tg_token)
+    updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + tg_token)
+    updater.idle()
