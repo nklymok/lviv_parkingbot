@@ -120,8 +120,9 @@ def sort_parkingspots():
 def send_parking_spot(update, parking_spot, summary):
     distance = round(summary["distance"] / 1000, 2)
     duration = round(summary["duration"] / 60)
-    print(str(distance) + ' км ' + str(duration) + ' хв, haversine: ' + str(
-        haversine(longitude, latitude, parking_spot.longitude, parking_spot.latitude)))
+    print('user location: ' + str(longitude) + ',' + str(latitude) +
+          ' | distance: ' + str(distance) + ' км | time: ' + str(duration) + ' хв | haversine: ' +
+          str(haversine(longitude, latitude, parking_spot.longitude, parking_spot.latitude)))
     update.message.reply_location(latitude=parking_spot.latitude, longitude=parking_spot.longitude)
     update.message.reply_text(
         text=
