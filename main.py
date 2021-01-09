@@ -200,5 +200,5 @@ if __name__ == '__main__':
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=tg_token)
-    updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + tg_token)
+    updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
     updater.idle()
