@@ -19,7 +19,7 @@ from parkingspot import ParkingSpot
 
 PORT = int(os.environ.get('PORT', 5000))
 
-# API keys
+# API keys (1st line - ors, 2nd line - bot token)
 api_file = open('api_key.txt', 'r')
 ors_token = api_file.readline()
 tg_token = api_file.readline()
