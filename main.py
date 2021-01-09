@@ -152,25 +152,6 @@ def respond_nearest_parking(update, context):
         print("error: \n" + response.json())
 
 
-def respond_three_parkings(update, context):
-    global longitude
-    global latitude
-
-    sort_parkingspots()
-    for i, parking_spot in enumerate(parking_spots):
-        if i == 3:
-            break
-        request = 'https://api.openrouteservice.org/v2/directions/driving-car?api_key=' + ors_token + \
-                  '&start=' + str(longitude) + ',' + str(latitude) + \
-                  '&end=' + str(parking_spot.longitude) + ',' + str(parking_spot.latitude)
-        response = requests.get(request)
-        if response.status_code == 200:
-            send_parking_spot(update, parking_spot, get_dist_dur_summary(response.json()))
-        else:
-            update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
-            print(response.json())
-
-
 def load_parking_data():
     for i, row in enumerate(parking_sheet.iter_rows(values_only=True)):
         # row[6] = parking places | row[7] = parking places for people with disabilities
@@ -186,6 +167,7 @@ def load_parking_data():
 
 
 def start(update, context):
+    print('new user: ' + update.message.from_user.id + ' | username: ' + update.message.from_user.username)
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
     bot.send_message(chat_id=update.effective_chat.id,
                      reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
