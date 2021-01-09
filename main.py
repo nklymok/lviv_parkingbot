@@ -190,11 +190,9 @@ def start(update, context):
                      reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+def main():
     load_parking_data()
     start_handler = CommandHandler('start', start)
-    location_handler = CommandHandler('send_location', process_location)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
     updater.start_webhook(listen="0.0.0.0",
@@ -202,3 +200,8 @@ if __name__ == '__main__':
                           url_path=tg_token)
     updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
     updater.idle()
+
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    main()
