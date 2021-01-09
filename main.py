@@ -199,6 +199,7 @@ def main():
                           port=int(PORT),
                           url_path=tg_token)
     updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
+    updater.idle()
 
 
 # Press the green button in the gutter to run the script.
