@@ -130,7 +130,7 @@ def send_parking_spot(update, parking_spot, summary):
         '📏 Відстань: ' + str(distance).format() + ' км\n\n'
         '⌛ Орієнтовне прибуття: через ' + str(duration) + ' хв\n\n'
         '🤏 К-ть паркувальних місць: ' + str(parking_spot.parking_places) + '\n\n'
-        '🦽 К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
+        'ℹ️ К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
     )
 
 
@@ -178,6 +178,7 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
+    # updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=tg_token)
