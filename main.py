@@ -1,7 +1,3 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import logging
 from math import radians, cos, sin, asin, sqrt
 from pathlib import Path
@@ -33,7 +29,8 @@ bot = telegram.Bot(token=tg_token)
 dispatcher = updater.dispatcher
 
 # location keyboard
-location_keyboard = telegram.KeyboardButton(text="Знайти паркінг поруч", request_location=True)
+btn_location_text = "Знайти паркінг поруч"
+location_keyboard = telegram.KeyboardButton(text=btn_location_text, request_location=True)
 custom_keyboard = [[location_keyboard]]
 find_parking_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
@@ -168,9 +165,15 @@ def load_parking_data():
 
 def start(update, context):
     print('new user: ' + str(update.message.from_user.id) + ' | username: ' + str(update.message.from_user.username))
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+                                                                "Цей бот допоможе вам знайти найближчий паркінг! 😉")
     bot.send_message(chat_id=update.effective_chat.id,
-                     reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
+                     reply_markup=find_parking_markup, text=
+                                                        "Будь ласка, відправте ваші геодані.\n"
+                                                        "Для цього:\n"
+                                                        "а) натисніть на кнопку \"" + btn_location_text + "\"\n"
+                                                        "б) або натисніть на 📎 (вкладення) в чаті зліва від поля вводу"
+                                                        " та відправте вашу локацію.")
 
 
 def main():
