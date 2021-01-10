@@ -123,7 +123,7 @@ def send_parking_spot(update, parking_spot, summary):
         '📏 Відстань: ' + str(distance).format() + ' км\n\n'
         '⌛ Орієнтовне прибуття: через ' + str(duration) + ' хв\n\n'
         '🤏 К-ть паркувальних місць: ' + str(parking_spot.parking_places) + '\n\n'
-        '🦽 К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
+        'ℹ️ К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
     )
 
 
