@@ -31,7 +31,7 @@ It's really that easy:
 ## Installation:
 In case you would like to have your own bot.
 <a href="prereq"></a>
-## Pre-requisites:
+#### Pre-requisites:
 - Telegram bot and it's token. Create the bot using [BotFather bot](t.me/botfather), and receive the token after creation.
 - OpenRouteService API key. Receieve it after signing up on their [official website](https://openrouteservice.org).
 1) Download the repository.
