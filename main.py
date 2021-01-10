@@ -15,7 +15,7 @@ from parkingspot import ParkingSpot
 
 PORT = int(os.environ.get('PORT', 5000))
 
-# API keys (1st line - ors, 2nd line - bot token)
+# API keys
 api_file = open('api_key.txt', 'r')
 ors_token = api_file.readline()
 tg_token = api_file.readline()
@@ -29,7 +29,8 @@ bot = telegram.Bot(token=tg_token)
 dispatcher = updater.dispatcher
 
 # location keyboard
-location_keyboard = telegram.KeyboardButton(text="Знайти паркінг поруч", request_location=True)
+btn_location_text = "Знайти паркінг поруч"
+location_keyboard = telegram.KeyboardButton(text=btn_location_text, request_location=True)
 custom_keyboard = [[location_keyboard]]
 find_parking_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
@@ -160,9 +161,16 @@ def load_parking_data():
 
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+                                                                "Привіт!\n"
+                                                                "Цей бот допоможе вам знайти найближчий паркінг загального користування! 😉\n")
     bot.send_message(chat_id=update.effective_chat.id,
-                     reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
+                     reply_markup=find_parking_markup, text=
+                                                        "🔍 Будь ласка, відправте ваші геодані, або локацію, поряд з якою хочете знайти паркінг\n"
+                                                        "Для цього:\n"
+                                                        "а) натисніть на кнопку \"" + btn_location_text + "\",\n"
+                                                        "б) або натисніть на 📎 (вкладення) в чаті зліва від поля вводу"
+                                                        " та відправте вашу локацію.")
 
 
 def main():
@@ -170,6 +178,7 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
+    # updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=tg_token)
