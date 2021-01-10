@@ -1,7 +1,3 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import logging
 from math import radians, cos, sin, asin, sqrt
 from pathlib import Path
@@ -120,9 +116,6 @@ def sort_parkingspots():
 def send_parking_spot(update, parking_spot, summary):
     distance = round(summary["distance"] / 1000, 2)
     duration = round(summary["duration"] / 60)
-    print('user location: ' + str(longitude) + ',' + str(latitude) +
-          ' | distance: ' + str(distance) + ' км | time: ' + str(duration) + ' хв | haversine: ' +
-          str(haversine(longitude, latitude, parking_spot.longitude, parking_spot.latitude)))
     update.message.reply_location(latitude=parking_spot.latitude, longitude=parking_spot.longitude)
     update.message.reply_text(
         text=
@@ -167,7 +160,6 @@ def load_parking_data():
 
 
 def start(update, context):
-    print('new user: ' + str(update.message.from_user.id) + ' | username: ' + str(update.message.from_user.username))
     context.bot.send_message(chat_id=update.effective_chat.id, text="Цей бот допоможе знайти вам найближчий паркінг!")
     bot.send_message(chat_id=update.effective_chat.id,
                      reply_markup=find_parking_markup, text="Будь ласка, відправте ваші геодані.")
