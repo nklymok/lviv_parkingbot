@@ -131,7 +131,7 @@ def send_parking_spot(update, parking_spot, summary):
     )
 
 
-# TODO checked parking lots up to 102
+# TODO checked parking lots up to 156, 214 to go
 def respond_nearest_parking(update, context):
     global longitude
     global latitude
