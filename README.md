@@ -25,8 +25,10 @@ It's really that easy:
 5) Receive the response! See screenshots below.
 <a href="screenshots"></a>
 ## Screenshots:
-![Screenshot 1:](https://snipboard.io/S2hQCc.jpg "Bot About page")
-![Screenshot 2:](https://snipboard.io/xSKw9L.jpg "Bot in action")
+![Screenshot 1:](https://snipboard.io/ytxXrm.jpg "Bot About page")
+![Screenshot 2:](https://snipboard.io/aTOFEM.jpg "Bot instructions")
+![Screenshot 3:](https://snipboard.io/DcAgru.jpg "Bot in action")
+![Screenshot 4:](https://snipboard.io/10Uaef.jpg "Telegram location feature in action")
 <a href="installation"></a>
 ## Installation:
 In case you would like to have your own bot.
