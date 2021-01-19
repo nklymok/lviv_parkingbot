@@ -1,5 +1,6 @@
 import logging
-from math import radians, cos, sin, asin, sqrt, floor
+
+from math import radians, cos, sin, asin, sqrt
 from pathlib import Path
 import time
 import os
