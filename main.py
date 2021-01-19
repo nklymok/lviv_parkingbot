@@ -1,5 +1,5 @@
 import logging
-from math import radians, cos, sin, asin, sqrt
+from math import radians, cos, sin, asin, sqrt, floor
 from pathlib import Path
 import time
 import os
@@ -68,6 +68,16 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r
 
 
+def time_format(time):
+    if time < 60:
+        return str(time) + " хв."
+    hours = time / 60
+    minutes = time % 60
+    if minutes == 0:
+        return str(int(hours)) + " год. "
+    return str(int(hours)) + " год. " + str(minutes) + " хв."
+
+
 def get_dist_dur_summary(json):
     return json["features"][0]["properties"]["summary"]
 
@@ -116,13 +126,13 @@ def sort_parkingspots():
 
 def send_parking_spot(update, parking_spot, summary):
     distance = round(summary["distance"] / 1000, 2)
-    duration = round(summary["duration"] / 60)
+    duration = time_format(round(summary["duration"] / 60))
     update.message.reply_location(latitude=parking_spot.latitude, longitude=parking_spot.longitude)
     update.message.reply_text(
         text=
         '🚗 Найближчий паркінг: ' + parking_spot.address + '\n\n'
         '📏 Відстань: ' + str(distance).format() + ' км\n\n'
-        '⌛ Орієнтовне прибуття: через ' + str(duration) + ' хв\n\n'
+        '⌛ Орієнтовне прибуття: через ' + str(duration) + '\n\n'
         '🤏 К-ть паркувальних місць: ' + str(parking_spot.parking_places) + '\n\n'
         'ℹ️ К-ть місць для людей з інвалідністю: ' + str(parking_spot.parking_places_dis)
     )
