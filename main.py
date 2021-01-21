@@ -151,6 +151,7 @@ def respond_nearest_parking(update, context):
               '&end=' + str(parking_spot.longitude) + ',' + str(parking_spot.latitude)
     response = requests.get(request)
     if response.status_code == 200:
+        print(str(latitude) + ", " + str(longitude));
         send_parking_spot(update, parking_spot, get_dist_dur_summary(response.json()))
     else:
         update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
@@ -172,6 +173,7 @@ def load_parking_data():
 
 
 def start(update, context):
+    print("id: " + str(update.effectivechat_id) + " | username: " + update.message.from_user.username)
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=
                              "Привіт!\n"
