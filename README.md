@@ -8,13 +8,13 @@
 
 <a href="about"></a>
 ## About
-Discover Lviv parking lots near you on Telegram. Quick and simple solution for all parking problems.
-Find out:
-- What parkings are near you.
-- How far away is the nearest parking spot.
-- How much time it takes to get to the nearest parking spot.
-- How many parking spots are there.
-- How many inclusive parking spots are there.
+Discover Lviv parking lots near you on Telegram. Quick and simple solution for all parking problems. Find out:
+
+- What parking lots are near you.
+- How far away the nearest parking lot is.
+- How much time it takes to get to the nearest parking lot.
+- How many parking spots there are.
+- How many inclusive parking spots there are.
 <a href="usage"></a>
 ## Usage:
 It's really that easy:
