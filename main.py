@@ -173,12 +173,12 @@ def load_parking_data():
 
 
 def start(update, context):
-    print("id: " + str(update.effectivechat_id) + " | username: " + update.message.from_user.username)
-    context.bot.send_message(chat_id=update.effective_chat.id,
+    print("id: " + str(update.message.chat_id) + " | username: " + update.message.from_user.username)
+    context.bot.send_message(chat_id=update.message.chat_id,
                              text=
                              "Привіт!\n"
                              "Цей бот допоможе вам знайти найближчий паркінг загального користування! 😉\n")
-    bot.send_message(chat_id=update.effective_chat.id,
+    bot.send_message(chat_id=update.message.chat_id,
                      reply_markup=find_parking_markup,
                      text=
                      "🔍 Будь ласка, відправте ваші геодані, або локацію, поряд з якою хочете знайти паркінг\n"
