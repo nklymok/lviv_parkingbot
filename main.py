@@ -10,7 +10,8 @@ import os
 import openpyxl
 import requests
 import telegram
-from telegram.ext import CommandHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram.ext import Filters
 from telegram.ext import Updater, MessageHandler
 
@@ -39,6 +40,10 @@ location_keyboard = telegram.KeyboardButton(text=btn_location_text, request_loca
 custom_keyboard = [[location_keyboard]]
 find_parking_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
+instructions = "Для цього:\n" \
+                "а) натисніть на кнопку \"" + btn_location_text + "\",\n" \
+                "б) або натисніть на 📎 (вкладення) в чаті збоку від поля вводу та відправте локацію."
+
 # excel sheet
 xlsx_file = Path('parking.xlsx')
 workbook_obj = openpyxl.load_workbook(xlsx_file)
@@ -50,6 +55,7 @@ parking_lots = []
 # Userid to location map, userid to parking index map, current userid (used to share id while sorting parking lots)
 user_id_location = {}
 user_id_parking_index = {}
+parking_index_limit = 5
 current_userid = -1
 
 # Timeout dictionary
@@ -94,15 +100,16 @@ def on_timeout(call_time, current_time):
     return False
 
 
-def send_on_timeout_message(update, context, time_to_wait):
-    update.message.reply_text("Отримати найближчу парковку можна через " + str(int(time_to_wait)) + " секунд!")
+def send_on_timeout_message(message, context, time_to_wait):
+    message.reply_text("Отримати найближчий паркінг можна через " + str(int(time_to_wait)) + " секунд!")
+
 
 # Get user id, check for timeout -> save calltime, geocode in map, rest parking index in map, prepare parking
 def process_location(update, context):
     user_chat_id = update.message.chat_id
     current_time = time.time()
     if on_timeout(user_calltime.get(user_chat_id), current_time):
-        send_on_timeout_message(update, context, current_time - user_calltime.get(user_chat_id))
+        send_on_timeout_message(update.message, context, timeout - (current_time - user_calltime.get(user_chat_id)))
         return
     else:
         user_calltime[user_chat_id] = current_time
@@ -111,7 +118,7 @@ def process_location(update, context):
             update.message.location.latitude)
         print(str(update.message.location.latitude) + ", " + str(update.message.location.longitude))
         user_id_parking_index[update.message.chat_id] = 0
-        prepare_parking(update, context)
+        prepare_parking_lots(update, context)
 
 
 def find_distance(parking_lot):
@@ -126,15 +133,20 @@ def sort_parkinglots():
     parking_lots.sort(key=find_distance)
 
 
-def send_parking_lot(update, parking_lot, distance, duration):
-    update.message.reply_location(latitude=parking_lot.latitude, longitude=parking_lot.longitude)
-    update.message.reply_text(
+def send_parking_lot(message, parking_lot, distance, duration):
+    message.reply_location(latitude=parking_lot.latitude, longitude=parking_lot.longitude)
+    keyboard = [
+        [InlineKeyboardButton("Ще один паркінг поруч", callback_data=message.chat_id)],
+    ]
+    reply_next_parking_markup = InlineKeyboardMarkup(keyboard)
+    message.reply_text(
         text=
         '🚗 Найближчий паркінг: ' + parking_lot.address + '\n\n'
         '📏 Відстань: ' + str(distance).format() + ' км\n\n'
         '⌛ Орієнтовне прибуття: через ' + str(duration) + '\n\n'
         '🤏 К-ть паркувальних місць: ' + str(parking_lot.parking_places) + '\n\n'
-        'ℹ️ К-ть місць для людей з інвалідністю: ' + str(parking_lot.parking_places_dis)
+        'ℹ️ К-ть місць для людей з інвалідністю: ' + str(parking_lot.parking_places_dis),
+        reply_markup=reply_next_parking_markup
     )
 
 
@@ -157,11 +169,40 @@ def request_summary(user_geocode, parking_lot):
         print("error: \n" + response.json())
 
 
+# Get callback, check timeout, check for parking index limit, send parking
+def next_parking_lot(callback_update, context):
+    query = callback_update.callback_query
+    query.answer()
+    user_id = query.message.chat_id
+    current_time = time.time()
+    if on_timeout(user_calltime.get(user_id), current_time):
+        send_on_timeout_message(query.message, context, timeout - (current_time - user_calltime.get(user_id)))
+        return
+    user_geocode = user_id_location[user_id]
+    parking_index = user_id_parking_index[user_id]
+    if parking_index > parking_index_limit:
+        query.message.reply_text(text="Ви вже знайшли " + str(parking_index_limit) +
+                                      " найближчих паркінгів 😢\n\n"
+                                      "Проте ви можете спробувати знайти паркінги поряд з вашою новою локацією!\n"
+                                      + instructions)
+        return
+    user_id_parking_index[user_id] = user_id_parking_index[user_id] + 1
+    parking_lot = parking_lots[user_id_parking_index[user_id]]
+    summary = request_summary(user_geocode, parking_lot)
+    if summary is not None:
+        send_parking_lot(query.message, parking_lot, summary_get_distance(summary), summary_get_duration(summary))
+        query.edit_message_text(text=query.message.text + "\n\n🆕 Новий паркінг відправлено!")
+        return
+    else:
+        query.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
+        return
+
+
 # TODO checked parking lots up to 156, 214 to go
 # receive user geocode from map
 # sort parkings, get user parking index, request summary,
 # send message with distance and duration from summary to user
-def prepare_parking(update, context):
+def prepare_parking_lots(update, context):
     global user_id_parking_index
     global current_userid
 
@@ -174,7 +215,7 @@ def prepare_parking(update, context):
     summary = request_summary(user_geocode, parking_lot)
     if summary is not None:
         print(str(user_geocode.latitude) + ", " + str(user_geocode.longitude))
-        send_parking_lot(update, parking_lot, summary_get_distance(summary), summary_get_duration(summary))
+        send_parking_lot(update.message, parking_lot, summary_get_distance(summary), summary_get_duration(summary))
     else:
         update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
 
@@ -203,10 +244,7 @@ def start(update, context):
                      reply_markup=find_parking_markup,
                      text=
                      "🔍 Будь ласка, відправте ваші геодані, або локацію, поряд з якою хочете знайти паркінг\n"
-                     "Для цього:\n"
-                     "а) натисніть на кнопку \"" + btn_location_text + "\",\n"
-                     "б) або натисніть на 📎 (вкладення) в чаті збоку від поля вводу"
-                     " та відправте локацію.")
+                     + instructions)
 
 
 def main():
@@ -214,6 +252,7 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
+    dispatcher.add_handler(CallbackQueryHandler(next_parking_lot))
     updater.start_polling()
     # updater.start_webhook(listen="0.0.0.0",
     #                       port=int(PORT),
