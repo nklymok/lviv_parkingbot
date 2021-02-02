@@ -198,7 +198,7 @@ def next_parking_lot(callback_update, context):
         return
 
 
-# TODO checked parking lots up to 156, 214 to go
+# TODO checked parking lots up to 220, 150 to go
 # receive user geocode from map
 # sort parkings, get user parking index, request summary,
 # send message with distance and duration from summary to user
@@ -253,11 +253,11 @@ def main():
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
     dispatcher.add_handler(CallbackQueryHandler(next_parking_lot))
-    updater.start_polling()
-    # updater.start_webhook(listen="0.0.0.0",
-    #                       port=int(PORT),
-    #                       url_path=tg_token)
-    # updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
+    # updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=tg_token)
+    updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
     updater.idle()
 
 
