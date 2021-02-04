@@ -116,7 +116,6 @@ def process_location(update, context):
         user_id_location[update.message.chat_id] = Geocode(
             update.message.location.longitude,
             update.message.location.latitude)
-        print(str(update.message.location.latitude) + ", " + str(update.message.location.longitude))
         user_id_parking_index[update.message.chat_id] = 0
         prepare_parking_lots(update, context)
 
@@ -214,7 +213,8 @@ def prepare_parking_lots(update, context):
     parking_lot = parking_lots[user_id_parking_index[user_id]]
     summary = request_summary(user_geocode, parking_lot)
     if summary is not None:
-        print(str(user_geocode.latitude) + ", " + str(user_geocode.longitude))
+        print("user: " + str(user_geocode.latitude) + ", " + str(user_geocode.longitude) + " | \n"
+              "result: " + str(parking_lot.latitude) + ", " + str(parking_lot.longitude))
         send_parking_lot(update.message, parking_lot, summary_get_distance(summary), summary_get_duration(summary))
     else:
         update.message.reply_text(text='Вибачте, неможливо отримати інформацію про паркінг.')
@@ -235,7 +235,6 @@ def load_parking_data():
 
 
 def start(update, context):
-    print("id: " + str(update.message.chat_id) + " | username: " + update.message.from_user.username)
     context.bot.send_message(chat_id=update.message.chat_id,
                              text=
                              "Привіт!\n"
