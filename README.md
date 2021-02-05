@@ -27,7 +27,7 @@ It's really that easy:
 ## Screenshots:
 ![Screenshot 1:](https://snipboard.io/ytxXrm.jpg "Bot About page")
 ![Screenshot 2:](https://snipboard.io/aTOFEM.jpg "Bot instructions")
-![Screenshot 3:](https://snipboard.io/DcAgru.jpg "Bot in action")
+![Screenshot 3:](https://i.imgur.com/P5g0COg.png "Bot in action")
 ![Screenshot 4:](https://snipboard.io/10Uaef.jpg "Telegram location feature in action")
 <a href="installation"></a>
 ## Installation:
