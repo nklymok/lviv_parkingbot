@@ -15,6 +15,7 @@ Discover Lviv parking lots near you on Telegram. Quick and simple solution for a
 - How much time it takes to get to the nearest parking lot.
 - How many parking spots there are.
 - How many inclusive parking spots there are.
+- Where the next closest parking lot is.
 <a href="usage"></a>
 ## Usage:
 It's really that easy:
