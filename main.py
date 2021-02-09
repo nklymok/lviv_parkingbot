@@ -197,7 +197,7 @@ def next_parking_lot(callback_update, context):
         return
 
 
-# TODO checked parking lots up to 279, 91 to go
+# TODO checked parking lots up to 370, 0 to go
 # receive user geocode from map
 # sort parkings, get user parking index, request summary,
 # send message with distance and duration from summary to user
