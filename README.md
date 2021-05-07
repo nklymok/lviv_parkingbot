@@ -1,11 +1,11 @@
 # lviv_parkingbot
 ##### Table of Contents  
 - [Українською](#ua)
-    - [Про проект] (#about-ua)
-    - [Як користуватись] (#usage-ua)
-    - [Скріншоти] (#screenshots-ua)
-    - [Встановлення (для розробників)] (#installation-ua)
-        - [Реквізити] (#prereq-ua)
+    - [Про проект](#about-ua)
+    - [Як користуватись](#usage-ua)
+    - [Скріншоти](#screenshots-ua)
+    - [Встановлення (для розробників)](#installation-ua)
+        - [Реквізити](#prereq-ua)
 - [English](#en)  
     - [About](#about)  
     - [Usage](#usage)  
