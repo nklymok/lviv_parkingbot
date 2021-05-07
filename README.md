@@ -14,7 +14,7 @@
         - [Pre-requisites](#prereq)
 
 <a href="ua"></a>
-# Ukrainian
+# Українською
 
 <a href="about-ua"></a>
 ## Про проект
