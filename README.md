@@ -1,5 +1,5 @@
 # lviv_parkingbot
-##### Table of Contents  
+##### Зміст / Table of Contents 
 - [Українською](#ua)
     - [Про проект](#about-ua)
     - [Як користуватись](#usage-ua)
