@@ -7,8 +7,6 @@ name = "pypi"
 openpyxl = "*"
 requests = "*"
 telegram = "*"
-urllib3 = "*"
-cryptography = "*"
 python-telegram-bot = "*"
 
 [dev-packages]
