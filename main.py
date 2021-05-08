@@ -19,7 +19,7 @@ from telegram.ext import Updater, MessageHandler
 from parkingspot import ParkingSpot
 from geocode import Geocode
 
-# PORT = int(os.environ.get('PORT', 80))
+PORT = int(os.environ.get('PORT', 80))
 
 # API keys
 ors_token = os.environ['ORS_TOKEN']
@@ -254,8 +254,8 @@ def main():
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
     dispatcher.add_handler(CallbackQueryHandler(next_parking_lot))
     # updater.start_polling()
-    updater.start_webhook(listen="0.0.0.0",
-                          port=int(80),
+    updater.start_webhook(listen="123.123.12.21",
+                          port=int(PORT),
                           url_path=tg_token)
     updater.bot.setWebhook('https://parkingbot-lviv.herokuapp.com/' + tg_token)
     updater.idle()
