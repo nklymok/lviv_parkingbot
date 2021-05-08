@@ -161,7 +161,10 @@ def request_summary(user_geocode, parking_lot):
     request = 'https://api.openrouteservice.org/v2/directions/driving-car?api_key=' + ors_token + \
               '&start=' + str(user_geocode.longitude) + ',' + str(user_geocode.latitude) + \
               '&end=' + str(parking_lot.longitude) + ',' + str(parking_lot.latitude)
+    print('start: ' + (str(user_geocode.longitude) + ',' + str(user_geocode.latitude)) + '|end: '
+          + (str(user_geocode.longitude) + ',' + str(user_geocode.latitude)))
     response = requests.get(request)
+    print(response.text)
     if response.status_code == 200:
         return get_dist_dur_summary(response.json())
     else:

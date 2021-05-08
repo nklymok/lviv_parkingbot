@@ -4,6 +4,9 @@
 # API keys
 api_key.txt
 
+# logging
+logs.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
