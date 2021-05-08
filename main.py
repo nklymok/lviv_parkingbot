@@ -19,7 +19,7 @@ from telegram.ext import Updater, MessageHandler
 from parkingspot import ParkingSpot
 from geocode import Geocode
 
-PORT = int(os.environ.get('PORT', 5000))
+PORT = int(os.environ.get('PORT', 80))
 
 # API keys
 ors_token = os.environ['ORS_TOKEN']
