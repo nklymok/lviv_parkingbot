@@ -1,6 +1,6 @@
 import logging
 
-# haversine, timer stuff
+# haversine, timer stuff & sysenv
 from math import radians, cos, sin, asin, sqrt
 from pathlib import Path
 import time
@@ -22,10 +22,8 @@ from geocode import Geocode
 PORT = int(os.environ.get('PORT', 5000))
 
 # API keys
-api_file = open('api_key.txt', 'r')
-ors_token = api_file.readline()
-tg_token = api_file.readline()
-api_file.close()
+ors_token = os.environ['ORS_TOKEN']
+tg_token = os.environ['TG_TOKEN']
 
 # logger / telegram bot config
 updater = Updater(token=tg_token, use_context=True)
