@@ -1,0 +1,4 @@
+python_telegram_bot==13.5
+requests==2.22.0
+openpyxl==3.0.7
+telegram==0.0.1

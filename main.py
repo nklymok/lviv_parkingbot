@@ -255,7 +255,7 @@ def main():
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(MessageHandler(filters=Filters.location, callback=process_location))
     dispatcher.add_handler(CallbackQueryHandler(next_parking_lot))
-    #updater.start_polling()
+    # updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=tg_token)
