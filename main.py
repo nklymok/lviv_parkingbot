@@ -229,8 +229,8 @@ def load_parking_data():
             continue
         address = str(row[10])
         lat_lon = str(row[8]).split(',', 2)
-        parking_places = int(row[6])
-        parking_places_dis = int(row[7])
+        parking_places = str(row[6])
+        parking_places_dis = str(row[7])
         parking_lots.append(ParkingSpot(address, float(lat_lon[0]), float(lat_lon[1]),
                                         parking_places, parking_places_dis))
 
